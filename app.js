@@ -1,27 +1,23 @@
 const express = require('express');
-
-
 const morgan = require('morgan');
 const morganBody = require('morgan-body');
-
 const helmet = require('helmet');
 const app = express();
 const PORT = 3001;
 const cors = require("cors");
+const { getRandomInt } = require("./utils");
 
 let soldiers = require("./soldiers.json")
 let cities = require("./cities.json")
 cities.sort((a, b) => a.city > b.city ? 1 : -1);
+
 morganBody(app);
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors())
 app.use(express.json())
 
-function getRandomInt(max) {
-    return Math.floor(Math.random() * max);
-  }
-
+//global auth middleware
 app.use((req, res, next) => {
     const user_mispar_ishi = req.headers.user_mispar_ishi;
     const user_name = req.headers.user_name;
@@ -39,6 +35,7 @@ app.use((req, res, next) => {
     }
 });
 
+//routes
 app.post('/login', (req, res) => {
     res.status(200).send(req.user)
 })
@@ -59,11 +56,11 @@ app.get('/getAllCities', (_req, res) => {
 
 
 app.put('/updateMadorSoldiers', (req, res) => {
-    if(!req.body?.newSoldiers)  return res.status(400).json({ error: "Bad Data!" })
+    if (!req.body?.newSoldiers) return res.status(400).json({ error: "Bad Data!" })
     const { newSoldiers } = req.body;
     if (!Array.isArray(newSoldiers)) return res.status(400).json({ error: "Bad Data!" })
     const random = getRandomInt(3);
-    if(random === 0) return res.status(500).json({ error: "נאחס!" })
+    if (random === 0) return res.status(500).json({ error: "נאחס!" })
     soldiers = [...newSoldiers];
     return res.status(200).end();
 })
